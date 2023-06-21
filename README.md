@@ -1,3 +1,3 @@
 # VBA-Challenge
 
-Used chatgpt to help write parts of my code. 
+Used chatgpt to answer questions on how to write parts of my code. 
