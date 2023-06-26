@@ -1,0 +1,115 @@
+VBA Code File
+
+Sub StockAnalysisChallenge()
+    
+    Dim ws As Worksheet
+    For Each ws In Worksheets
+        Dim Ticker As String
+        Dim YearlyChange As Double
+        Dim PercentChange As Double
+        Dim TotalVolume As Double
+        Dim OpeningPrice As Double
+        Dim ClosingPrice As Double
+        Dim SummaryTableRow As Integer
+        SummaryTableRow = 2
+
+        ws.Cells(1, 9).Value = "Ticker"
+        ws.Cells(1, 10).Value = "Yearly Change"
+        ws.Cells(1, 11).Value = "Percent Change"
+        ws.Cells(1, 12).Value = "Total Stock Volume"
+        
+        ws.Range("J:J").NumberFormat = "0.00"
+        ws.Range("K:K").NumberFormat = "0.00%"
+        ws.Range("L:L").NumberFormat = "0"
+
+        Dim LastRow As Long
+        LastRow = ws.Cells(Rows.Count, 1).End(xlUp).Row
+
+        For i = 2 To LastRow
+            If ws.Cells(i, 1).Value <> ws.Cells(i - 1, 1).Value Then
+                OpeningPrice = ws.Cells(i, 3).Value
+            End If
+
+            TotalVolume = TotalVolume + ws.Cells(i, 7).Value
+
+            If ws.Cells(i, 1).Value <> ws.Cells(i + 1, 1).Value Then
+                ClosingPrice = ws.Cells(i, 6).Value
+
+                YearlyChange = ClosingPrice - OpeningPrice
+                If OpeningPrice <> 0 Then
+                    PercentChange = YearlyChange / OpeningPrice
+                Else
+                    PercentChange = 0
+                End If
+
+                ws.Cells(1, 16).Value = "Ticker"
+                ws.Cells(1, 17).Value = "Value"
+                
+                ws.Cells(SummaryTableRow, 9).Value = ws.Cells(i, 1).Value
+                ws.Cells(SummaryTableRow, 10).Value = YearlyChange
+                ws.Cells(SummaryTableRow, 11).Value = PercentChange
+                ws.Cells(SummaryTableRow, 12).Value = TotalVolume
+
+                If YearlyChange > 0 Then
+                    ws.Cells(SummaryTableRow, 10).Interior.Color = RGB(0, 255, 0)
+                Else
+                    ws.Cells(SummaryTableRow, 10).Interior.Color = RGB(255, 0, 0)
+                End If
+
+                SummaryTableRow = SummaryTableRow + 1
+
+                OpeningPrice = 0
+                ClosingPrice = 0
+                YearlyChange = 0
+                PercentChange = 0
+                TotalVolume = 0
+            End If
+        Next i
+
+        Dim MaxPercentIncrease As Double
+        Dim MaxPercentDecrease As Double
+        Dim MaxTotalVolume As Double
+        
+        Dim TickerMaxPercentIncrease As String
+        Dim TickerMaxPercentDecrease As String
+        Dim TickerMaxTotalVolume As String
+
+        MaxPercentIncrease = ws.Cells(2, 11).Value
+        MaxPercentDecrease = ws.Cells(2, 11).Value
+        MaxTotalVolume = ws.Cells(2, 12).Value
+
+        For j = 2 To LastRow
+            If ws.Cells(j, 11).Value > MaxPercentIncrease Then
+                MaxPercentIncrease = ws.Cells(j, 11).Value
+                TickerMaxPercentIncrease = ws.Cells(j, 9).Value
+            End If
+
+            If ws.Cells(j, 11).Value < MaxPercentDecrease Then
+                MaxPercentDecrease = ws.Cells(j, 11).Value
+                TickerMaxPercentDecrease = ws.Cells(j, 9).Value
+            End If
+
+            If ws.Cells(j, 12).Value > MaxTotalVolume Then
+                MaxTotalVolume = ws.Cells(j, 12).Value
+                TickerMaxTotalVolume = ws.Cells(j, 9).Value
+            End If
+        Next j
+
+        ws.Cells(2, 15).Value = "Greatest % Increase"
+        ws.Cells(2, 16).Value = TickerMaxPercentIncrease
+        ws.Cells(2, 17).Value = MaxPercentIncrease
+        ws.Cells(2, 17).NumberFormat = "0.00%"
+
+        ws.Cells(3, 15).Value = "Greatest % Decrease"
+        ws.Cells(3, 16).Value = TickerMaxPercentDecrease
+        ws.Cells(3, 17).Value = MaxPercentDecrease
+        ws.Cells(3, 17).NumberFormat = "0.00%"
+
+        ws.Cells(4, 15).Value = "Greatest Total Volume"
+        ws.Cells(4, 16).Value = TickerMaxTotalVolume
+        ws.Cells(4, 17).Value = MaxTotalVolume
+
+        ws.Columns("I:Q").AutoFit
+    Next ws
+End Sub
+
